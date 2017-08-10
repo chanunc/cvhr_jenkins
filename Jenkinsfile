@@ -22,8 +22,15 @@ pipeline {
         sh '''
           cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.hrcore
           phpunit4
-          cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.appraisals
-          phpunit4
+        '''
+      }
+    }
+    stage('Test JS'){
+      steps{
+        sh '''
+          cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/org.civicrm.reqangular
+          npm install
+          gulp test
         '''
       }
     }
