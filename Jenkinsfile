@@ -19,8 +19,12 @@ pipeline {
     }
     stage('Test PHP') {
       steps {
-        sh '''cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.hrcore
-phpunit4'''
+        sh '''
+          cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.hrcore
+          phpunit4
+          cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.appraisals
+          phpunit4
+        '''
       }
     }
   }
