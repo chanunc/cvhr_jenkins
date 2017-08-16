@@ -19,10 +19,8 @@ pipeline {
     }
     stage('Test PHP') {
       steps {
-        sh '''
-          cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.hrcore
-          phpunit4
-        '''
+        testExtensionWithPHPUnit("uk.co.compucorp.civicrm.hrcore")
+        testExtensionWithPHPUnit("hrjobcontract")
       }
     }
     stage('Test JS'){
@@ -34,5 +32,11 @@ pipeline {
         '''
       }
     }
+  }
+  def testExtensionWithPHPUnit(String extensionName){
+    sh """
+      cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+      phpunit4
+    """
   }
 }
