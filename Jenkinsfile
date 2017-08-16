@@ -25,28 +25,35 @@ pipeline {
 
         // Execute PHP test
         // TODO: Execute test and Generate report without stop on fail
-        testExtensionWithPHPUnit("uk.co.compucorp.civicrm.hrcore")
-        testExtensionWithPHPUnit("hrjobcontract")
+        testPHPUnit("uk.co.compucorp.civicrm.hrcore")
+        testPHPUnit("hrjobcontract")
       }
     }
     stage('Test JS'){
       steps{
         // Execute JS test
         // TODO: Execute test and Generate report without stop on fail
-        sh '''
-          cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/org.civicrm.reqangular
-          npm install
-          gulp test
-        '''
+        testJS("org.civicrm.reqangular")
       }
     }
   }
 }
 
-// Execute PHPUnit testing by extension
-def testExtensionWithPHPUnit(String extensionName){
+// Execute PHPUnit testing
+// parameter: extensionName
+def testPHPUnit(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
     phpunit4
   """
+}
+
+// Execute JS Testing
+// parameter: extensionName
+def testJS(String extensionName){
+  sh '''
+    cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+    npm install
+    gulp test
+  '''
 }
