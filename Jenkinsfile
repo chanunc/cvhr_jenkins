@@ -33,10 +33,12 @@ pipeline {
       }
     }
   }
-  def testExtensionWithPHPUnit(String extensionName){
-    sh """
-      cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
-      phpunit4
-    """
-  }
+}
+
+// Execute PHPUnit testing by extension
+def testExtensionWithPHPUnit(String extensionName){
+  sh """
+    cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+    phpunit4
+  """
 }
