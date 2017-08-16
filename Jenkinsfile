@@ -51,9 +51,9 @@ def testPHPUnit(String extensionName){
 // Execute JS Testing
 // parameter: extensionName
 def testJS(String extensionName){
-  sh '''
+  sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
     npm install
     gulp test
-  '''
+  """
 }
