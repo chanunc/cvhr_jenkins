@@ -1,3 +1,4 @@
+#!groovy
 pipeline {
   agent any
   stages {
@@ -34,6 +35,7 @@ pipeline {
         // Execute JS test
         // TODO: Execute test and Generate report without stop on fail
         testJS("org.civicrm.reqangular")
+        testJS("/opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/uk.co.compucorp.civicrm.hrleaveandabsences")
       }
     }
   }
@@ -57,3 +59,12 @@ def testJS(String extensionName){
     gulp test
   """
 }
+
+// Get list of enabled civihr extensions
+def listEnabledCivihrExtensions(){
+  sh """
+    cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/
+    drush cvapi extension.get statusLabel=Enabled return=path | grep civihr | awk '{ print /$3 }' | awk -F'[/=]' '{ print /$13 }' | sort
+  """
+}
+
