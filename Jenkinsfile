@@ -7,7 +7,9 @@ pipeline {
         sh 'amp test'
       }
     }
-    
+    // Get the list of cvivihr extensions to test
+    def extensions = listEnabledCivihrExtensions()
+
     stage('Build site') {
       steps {
         // TODO: Parameterise; buildName, branchName
@@ -17,28 +19,27 @@ pipeline {
           drush civicrm-upgrade-db
           drush cvapi extension.upgrade
         '''
-
       }
     }
 
     stage('Test PHP') {
       steps {
-        // TODO: Get the list of cvivihr extensions to test
         // TODO: Shared env; webRootPath
-
-        // Execute PHP test
         // TODO: Execute test and Generate report without stop on fail
-        testPHPUnit("uk.co.compucorp.civicrm.hrcore")
-        testPHPUnit("hrjobcontract")
+        for (i = 0; i<extensions.size(); i++){
+          // Execute PHP test
+          testPHPUnit(extensions[i])
+        }
       }
     }
 
     stage('Test JS'){
       steps{
-        // Execute JS test
         // TODO: Execute test and Generate report without stop on fail
-        testJS("org.civicrm.reqangular")
-        testJS("uk.co.compucorp.civicrm.hrleaveandabsences")
+        for (i = 0; i<extensions.size(); i++){
+          // Execute JS test
+          testJS(extensions[i])
+        }
       }
     }
   }
