@@ -7,6 +7,7 @@ pipeline {
         sh 'amp test'
       }
     }
+    
     stage('Build site') {
       steps {
         // TODO: Parameterise; buildName, branchName
@@ -19,9 +20,10 @@ pipeline {
 
       }
     }
+
     stage('Test PHP') {
       steps {
-        // TODO: Get the list of extension to test
+        // TODO: Get the list of cvivihr extensions to test
         // TODO: Shared env; webRootPath
 
         // Execute PHP test
@@ -30,6 +32,7 @@ pipeline {
         testPHPUnit("hrjobcontract")
       }
     }
+
     stage('Test JS'){
       steps{
         // Execute JS test
@@ -41,17 +44,18 @@ pipeline {
   }
 }
 
-// Execute PHPUnit testing
-// parameter: extensionName
+/* Execute PHPUnit testing
+ * params: extensionName
+ */
 def testPHPUnit(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
     phpunit4
   """
 }
-
-// Execute JS Testing
-// parameter: extensionName
+/* Execute JS Testing
+ * params: extensionName
+ */
 def testJS(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
@@ -59,12 +63,10 @@ def testJS(String extensionName){
     gulp test
   """
 }
-
-// Get list of enabled civihr extensions
+/* Get list of enabled extensions in extensions/civihr folder
+ * CVAPI - drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print $NF}' | sort
+ */
 def listEnabledCivihrExtensions(){
-  sh """
-    cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/
-    drush cvapi extension.get statusLabel=Enabled return=path | grep civihr | awk '{ print \$3 }' | awk -F'[/=]' '{ print \$13 }' | sort
-  """
+  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
 }
 
