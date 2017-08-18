@@ -29,7 +29,7 @@ pipeline {
       steps {
         // TODO: Shared env; webRootPath
         // TODO: Execute test and Generate report without stop on fail
-        for (i = 0; i<extensions.size(); i++){
+        for (int i = 0; i<extensions.size(); i++) {
           // Execute PHP test
           testPHPUnit(extensions[i])
         }
@@ -39,7 +39,7 @@ pipeline {
     stage('Test JS'){
       steps{
         // TODO: Execute test and Generate report without stop on fail
-        for (i = 0; i<extensions.size(); i++){
+        for (int i = 0; i<extensions.size(); i++) {
           // Execute JS test
           testJS(extensions[i])
         }
