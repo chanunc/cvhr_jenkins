@@ -26,6 +26,9 @@ pipeline {
         // TODO: Shared env; webRootPath
         echo 'Testing PHP'
         script{
+          // Get the list of cvivihr extensions to test
+          def extensions = listEnabledCivihrExtensions()
+
           // TODO: Execute test and Generate report without stop on fail
           for (int i = 0; i<extensions.size(); i++) {
             // Execute PHP test
@@ -38,7 +41,10 @@ pipeline {
     stage('Test JS'){
       steps{
         echo 'Testing JS'
-        script{        
+        script{
+          // Get the list of cvivihr extensions to test
+          def extensions = listEnabledCivihrExtensions()
+
           // TODO: Execute test and Generate report without stop on fail
           for (int i = 0; i<extensions.size(); i++) {
             // Execute JS test
@@ -75,6 +81,3 @@ def testJS(String extensionName){
 def listEnabledCivihrExtensions(){
   return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
 }
-
-// Get the list of cvivihr extensions to test
-def extensions = listEnabledCivihrExtensions()
