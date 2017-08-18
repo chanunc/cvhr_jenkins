@@ -62,7 +62,7 @@ pipeline {
 def testPHPUnit(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
-    phpunit4
+    phpunit4 || true
   """
 }
 /* Execute JS Testing
@@ -72,7 +72,7 @@ def testJS(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
     npm install
-    gulp test
+    gulp test || true
   """
 }
 /* Get list of enabled extensions in extensions/civihr folder
