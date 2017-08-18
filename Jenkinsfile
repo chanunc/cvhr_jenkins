@@ -1,14 +1,17 @@
 #!groovy
+
+// Get the list of cvivihr extensions to test
+def extensions = listEnabledCivihrExtensions()
+
 pipeline {
   agent any
+  
   stages {
     stage('Test build tools') {
       steps {
         sh 'amp test'
       }
     }
-    // Get the list of cvivihr extensions to test
-    def extensions = listEnabledCivihrExtensions()
 
     stage('Build site') {
       steps {
