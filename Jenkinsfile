@@ -28,20 +28,24 @@ pipeline {
     stage('Test PHP') {
       steps {
         // TODO: Shared env; webRootPath
-        // TODO: Execute test and Generate report without stop on fail
-        for (int i = 0; i<extensions.size(); i++) {
-          // Execute PHP test
-          testPHPUnit(extensions[i])
+        script{
+          // TODO: Execute test and Generate report without stop on fail
+          for (int i = 0; i<extensions.size(); i++) {
+            // Execute PHP test
+            testPHPUnit(extensions[i])
+          }
         }
       }
     }
 
     stage('Test JS'){
       steps{
-        // TODO: Execute test and Generate report without stop on fail
-        for (int i = 0; i<extensions.size(); i++) {
-          // Execute JS test
-          testJS(extensions[i])
+        script{        
+          // TODO: Execute test and Generate report without stop on fail
+          for (int i = 0; i<extensions.size(); i++) {
+            // Execute JS test
+            testJS(extensions[i])
+          }
         }
       }
     }
