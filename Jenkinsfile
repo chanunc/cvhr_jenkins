@@ -24,6 +24,7 @@ pipeline {
     stage('Test PHP') {
       steps {
         // TODO: Shared env; webRootPath
+        echo 'Testing PHP'
         script{
           // TODO: Execute test and Generate report without stop on fail
           for (int i = 0; i<extensions.size(); i++) {
@@ -36,6 +37,7 @@ pipeline {
 
     stage('Test JS'){
       steps{
+        echo 'Testing JS'
         script{        
           // TODO: Execute test and Generate report without stop on fail
           for (int i = 0; i<extensions.size(); i++) {
