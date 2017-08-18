@@ -1,8 +1,4 @@
 #!groovy
-
-// Get the list of cvivihr extensions to test
-def extensions = listEnabledCivihrExtensions()
-
 pipeline {
   agent any
   
@@ -78,3 +74,5 @@ def listEnabledCivihrExtensions(){
   return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
 }
 
+// Get the list of cvivihr extensions to test
+def extensions = listEnabledCivihrExtensions()
