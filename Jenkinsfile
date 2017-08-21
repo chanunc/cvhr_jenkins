@@ -35,9 +35,9 @@ pipeline {
             testPHPUnit(extensions[i])
           }
         }
-      }
-      publishers {
-        textFinder(/^FAILURES!$/, '', true, false, true)
+        publishers {
+          textFinder(/^FAILURES!$/, '', true, false, true)
+        }
       }
     }
 
