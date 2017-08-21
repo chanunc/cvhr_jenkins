@@ -36,6 +36,9 @@ pipeline {
           }
         }
       }
+      publishers {
+        textFinder(/^FAILURES!$/, '', true, false, true)
+      }
     }
 
     stage('Test JS'){
