@@ -9,6 +9,12 @@ pipeline {
       }
     }
 
+    stage('Destroy site') {
+      steps {
+        sh 'civibuild destroy hr17'
+      }
+    }
+
     stage('Build site') {
       steps {
         // TODO: Parameterise; buildName, branchName
@@ -35,8 +41,15 @@ pipeline {
             testPHPUnit(extensions[i])
           }
         }
+
         publishers {
-          textFinder(/^FAILURES!$/, '', true, false, true)
+          /* Add textFinder from Job DSL plugin
+           */
+          // textFinder(String regularExpression, String fileSet = ''
+          // , boolean alsoCheckConsoleOutput = false
+          // , boolean succeedIfFound = false
+          // , unstableIfFound = false
+          textFinder(/^FAILURES!$/, '', true, true, false)
         }
       }
     }
