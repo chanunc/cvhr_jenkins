@@ -5,11 +5,13 @@ pipeline {
   stages {
     stage('Pre-tasks execution') {
       steps {
+        sh '''
         echo 'Destroy existing site!'
-        sh 'civibuild destroy hr17'
+        civibuild destroy hr17
 
         echo 'Test build tools'
-        sh 'amp test'
+        amp test
+        '''
       }
     }
 
