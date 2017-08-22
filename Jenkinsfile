@@ -51,8 +51,8 @@ pipeline {
           // , boolean alsoCheckConsoleOutput = false
           // , boolean succeedIfFound = false
           // , unstableIfFound = false
-          // textFinder(/^FAILURES!$/, '', true, false, false)
-          textFinder(/^OK ($/, '', true, true, false)
+          textFinder(/^FAILURES!$/, '', true, true, false)
+          // textFinder(/^OK ($/, '', true, true, false)
         }
       }
     }
