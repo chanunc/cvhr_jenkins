@@ -31,6 +31,7 @@ pipeline {
       steps {
         // TODO: Shared env; webRootPath
         echo 'Testing PHP'
+        
         script{
           // Get the list of cvivihr extensions to test
           def extensions = listEnabledCivihrExtensions()
