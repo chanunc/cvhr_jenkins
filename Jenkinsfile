@@ -3,15 +3,19 @@ pipeline {
   agent any
   
   stages {
-    stage('Test build tools') {
+    stage('Pre-tasks execution') {
       steps {
+        echo 'Destroy existing site!'
+        sh 'civibuild destroy hr17'
+
+        echo 'Test build tools'
         sh 'amp test'
       }
     }
 
     stage('Destroy site') {
       steps {
-        sh 'civibuild destroy hr17'
+        
       }
     }
 
@@ -31,7 +35,7 @@ pipeline {
       steps {
         // TODO: Shared env; webRootPath
         echo 'Testing PHP'
-        
+
         script{
           // Get the list of cvivihr extensions to test
           def extensions = listEnabledCivihrExtensions()
@@ -46,11 +50,12 @@ pipeline {
         publishers {
           /* Add textFinder from Job DSL plugin
            */
-          // textFinder(String regularExpression, String fileSet = ''
+          // textFinder(String regularExpression
+          // , String fileSet = ''
           // , boolean alsoCheckConsoleOutput = false
           // , boolean succeedIfFound = false
           // , unstableIfFound = false
-          textFinder(/^FAILURES!$/, '', true, true, false)
+          textFinder(/^FAILURES!$/, '', true, false, false)
         }
       }
     }
