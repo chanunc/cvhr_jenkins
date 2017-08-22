@@ -13,12 +13,6 @@ pipeline {
       }
     }
 
-    stage('Destroy site') {
-      steps {
-        
-      }
-    }
-
     stage('Build site') {
       steps {
         // TODO: Parameterise; buildName, branchName
