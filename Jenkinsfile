@@ -41,18 +41,17 @@ pipeline {
           }
         }
 
-        publishers {
-          /* Add textFinder from Job DSL plugin
-           */
-          // textFinder(String regularExpression
-          // , String fileSet = ''
-          // , boolean alsoCheckConsoleOutput = false
-          // , boolean succeedIfFound = false
-          // , unstableIfFound = false
+        // publishers {
+        //   /* Add textFinder from Job DSL plugin
+        //    */
+        //   // textFinder(String regularExpression
+        //   // , String fileSet = ''
+        //   // , boolean alsoCheckConsoleOutput = false
+        //   // , boolean succeedIfFound = false
+        //   // , unstableIfFound = false
           
-          // textFinder(/^FAILURES!$/, '', true, true, false)
-          // textFinder(/^OK ($/, '', true, true, false)
-        }
+        //   textFinder(/^FAILURES!$/, '', true, true, false)
+        // }
       }
     }
 
