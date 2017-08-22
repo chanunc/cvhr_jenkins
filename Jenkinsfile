@@ -3,18 +3,18 @@ pipeline {
   agent any
   
   stages {
+    // TODO: Consider destroy site before or after build
     stage('Pre-tasks execution') {
-      // TODO: Consider destroy site before or after build
       steps {
-        echo 'Destroy existing site'
+        // Destroy existing site
         sh 'civibuild destroy hr17'
-        echo 'Test build tools'
+        // Test build tools
         sh 'amp test'
       }
     }
 
+    // TODO: Parameterise; buildName, branchName
     stage('Build site') {
-      // TODO: Parameterise; buildName, branchName
       steps {
         sh '''
           civibuild create hr17 --type hr16 --civi-ver 4.7.18 --hr-ver 1.7-wip --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
@@ -49,7 +49,8 @@ pipeline {
           // , boolean alsoCheckConsoleOutput = false
           // , boolean succeedIfFound = false
           // , unstableIfFound = false
-          textFinder(/^FAILURES!$/, '', true, true, false)
+          
+          // textFinder(/^FAILURES!$/, '', true, true, false)
           // textFinder(/^OK ($/, '', true, true, false)
         }
       }
