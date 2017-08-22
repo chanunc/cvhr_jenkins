@@ -4,20 +4,18 @@ pipeline {
   
   stages {
     stage('Pre-tasks execution') {
+      // TODO: Consider destroy site before or after build
       steps {
-        sh '''
-        echo 'Destroy existing site!'
-        civibuild destroy hr17
-
+        echo 'Destroy existing site'
+        sh 'civibuild destroy hr17'
         echo 'Test build tools'
-        amp test
-        '''
+        sh 'amp test'
       }
     }
 
     stage('Build site') {
+      // TODO: Parameterise; buildName, branchName
       steps {
-        // TODO: Parameterise; buildName, branchName
         sh '''
           civibuild create hr17 --type hr16 --civi-ver 4.7.18 --hr-ver 1.7-wip --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
           cd /opt/buildkit/build/hr17/sites/
@@ -27,16 +25,16 @@ pipeline {
       }
     }
 
+    // TODO: Shared env; webRootPath
+    // TODO: Test report after all tests
     stage('Test PHP') {
       steps {
-        // TODO: Shared env; webRootPath
         echo 'Testing PHP'
 
         script{
           // Get the list of cvivihr extensions to test
           def extensions = listEnabledCivihrExtensions()
 
-          // TODO: Execute test and Generate report without stop on fail
           for (int i = 0; i<extensions.size(); i++) {
             // Execute PHP test
             testPHPUnit(extensions[i])
@@ -57,6 +55,7 @@ pipeline {
       }
     }
 
+    // TODO: Parallell npm install every extensions
     stage('Test JS'){
       steps{
         echo 'Testing JS'
