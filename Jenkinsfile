@@ -51,7 +51,8 @@ pipeline {
           // , boolean alsoCheckConsoleOutput = false
           // , boolean succeedIfFound = false
           // , unstableIfFound = false
-          textFinder(/^FAILURES!$/, '', true, false, false)
+          // textFinder(/^FAILURES!$/, '', true, false, false)
+          textFinder(/^OK ($/, '', true, true, false)
         }
       }
     }
@@ -93,9 +94,10 @@ def testJS(String extensionName){
     gulp test || true
   """
 }
-/* Get list of enabled extensions in extensions/civihr folder
+/* Get list of enabled CiviHR extensions
  * CVAPI - drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print $NF}' | sort
  */
 def listEnabledCivihrExtensions(){
+  echo 'Get list of enabled CiviHR extensions'
   return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
 }
