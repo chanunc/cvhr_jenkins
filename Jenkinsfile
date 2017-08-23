@@ -84,13 +84,16 @@ pipeline {
         echo 'Testing JS Parallel'
 
         script{
+          node("testing-js-parallel"){
+            echo 'testing-js-parallel'
+          }
           def extensionTestings = [:]
           def extensions = listEnabledCivihrExtensions()
 
           for (int i = 0; i<extensions.size(); i++) {
             def index = i
             extensionTestings[extensions[index]] = {
-              node("${extensions[index]}"){
+              node("testing-js-parallel"){
                 echo extensions[index]
                 testJS(extensions[index])
               }
