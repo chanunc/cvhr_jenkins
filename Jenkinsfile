@@ -84,9 +84,11 @@ pipeline {
         echo 'Testing JS Parallel'
 
         script{
-          def extensionTestings = [:]
+          // get extensions list
           def extensions = listEnabledCivihrExtensions()
+          def extensionTestings = [:]
 
+          // Parallel Install NPM jobs 
           for (int i = 0; i<extensions.size(); i++) {
             def index = i
             extensionTestings[extensions[index]] = {
@@ -96,14 +98,13 @@ pipeline {
           }
           parallel extensionTestings
 
+          // Sequenctially test JS
           for (int j = 0; j<extensions.size(); j++) {
             def index = j
             echo "Testing with Gulp: " + extensions[index]
             testJS(extensions[index])  
           }
         }
-
-
       }
     }
   }
@@ -124,7 +125,7 @@ def testPHPUnit(String extensionName){
 def installJS(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
-    npm install
+    npm install || true
   """
 }
 /* Execute JS Testing
@@ -141,6 +142,8 @@ def testJS(String extensionName){
  */
 def listEnabledCivihrExtensions(){
   echo 'Get list of enabled CiviHR extensions'
+  // All cvhr extensions
   return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
+  // Some cvhr extensions
   // return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
 }
