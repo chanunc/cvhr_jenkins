@@ -90,12 +90,20 @@ pipeline {
           for (int i = 0; i<extensions.size(); i++) {
             def index = i
             extensionTestings[extensions[index]] = {
-              echo extensions[index]
-              testJS(extensions[index])
+              echo "Installing NPM: " + extensions[index]
+              installJS(extensions[index])
             }
           }
           parallel extensionTestings
+
+          for (int j = 0; j<extensions.size(); j++) {
+            def index = j
+            echo "Testing with Gulp: " + extensions[index]
+            testJS(extensions[index])  
+          }
         }
+
+
       }
     }
   }
@@ -110,13 +118,21 @@ def testPHPUnit(String extensionName){
     phpunit4 || true
   """
 }
+/* Installk JS Testing
+ * params: extensionName
+ */
+def installJS(String extensionName){
+  sh """
+    cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+    npm install
+  """
+}
 /* Execute JS Testing
  * params: extensionName
  */
 def testJS(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
-    npm install
     gulp test || true
   """
 }
