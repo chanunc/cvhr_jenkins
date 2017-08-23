@@ -56,19 +56,49 @@ pipeline {
     }
 
     // TODO: Parallell npm install every extensions
-    stage('Test JS'){
-      steps{
-        echo 'Testing JS'
-        script{
-          // Get the list of cvivihr extensions to test
-          def extensions = listEnabledCivihrExtensions()
+    // TODO: Execute test and Generate report without stop on fail
+    // stage('Test JS'){
+    //   steps{
+    //     echo 'Testing JS'
 
-          // TODO: Execute test and Generate report without stop on fail
-          for (int i = 0; i<extensions.size(); i++) {
-            // Execute JS test
-            testJS(extensions[i])
+    //     script{
+    //       // Get the list of cvivihr extensions to test
+    //       def extensions = listEnabledCivihrExtensions()
+
+    //       for (int i = 0; i<extensions.size(); i++) {
+    //       // Execute JS test
+    //       testJS(extensions[i])
+    //       }
+    //     }
+    //   }
+    // }
+    
+    /* Parallel
+     * com.civicrm.hrjobroles
+     * hrjobcontract
+     * org.civicrm.reqangular
+     * uk.co.compucorp.civicrm.hrcore
+     */
+    stage('Test JS Parallel') {
+      parallel hrjobroles: {
+          node('hrjobroles') {
+              testJS("com.civicrm.hrjobroles")
           }
-        }
+      },
+      hrjobcontract: {
+          node('hrjobcontract') {
+              testJS("hrjobcontract")
+          }
+      }
+      reqangular: {
+          node('reqangular') {
+              testJS("org.civicrm.reqangular")
+          }
+      }
+      hrcore: {
+          node('hrcore') {
+              testJS("uk.co.compucorp.civicrm.hrcore")
+          }
       }
     }
   }
