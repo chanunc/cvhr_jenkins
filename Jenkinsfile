@@ -81,20 +81,23 @@ pipeline {
      */
     stage('Test JS Parallel') {
       steps {
+        echo 'Testing JS Parallel'
 
-      script{
-        def extensionTestings = [:]
-        def extensions = listEnabledCivihrExtensions()
+        script{
+          def extensionTestings = [:]
+          def extensions = listEnabledCivihrExtensions()
 
-        for (int i = 0; i<extensions.size(); i++) {
-          def index = i;
-          extensionTestings[extensions[index]] = {
-            echo extensions[index];
-            testJS(extensions[index])
+          for (int i = 0; i<extensions.size(); i++) {
+            def index = i
+            extensionTestings[extensions[index]] = {
+              node("${extensions[index]}"){
+                echo extensions[index]
+                testJS(extensions[index])
+              }
+            }
           }
         }
-      }
-      parallel extensionTestings
+        parallel extensionTestings
       //   parallel (
       //     hrjobroles: {
       //       echo 'hrjobroles'
