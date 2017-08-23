@@ -55,7 +55,6 @@ pipeline {
       }
     }
 
-    // TODO: Parallell npm install every extensions
     // TODO: Execute test and Generate report without stop on fail
     // stage('Test JS'){
     //   steps{
@@ -73,11 +72,7 @@ pipeline {
     //   }
     // }
     
-    /* Parallel
-     * com.civicrm.hrjobroles
-     * hrjobcontract
-     * org.civicrm.reqangular
-     * uk.co.compucorp.civicrm.hrcore
+    /* Parallel Test JS
      */
     stage('Test JS Parallel') {
       steps {
@@ -143,7 +138,13 @@ def testJS(String extensionName){
 def listEnabledCivihrExtensions(){
   echo 'Get list of enabled CiviHR extensions'
   // All cvhr extensions
-  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
-  // Some cvhr extensions
-  // return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
+  // return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
+  
+  /* Some cvhr extensions:
+   *  com.civicrm.hrjobroles
+   *  hrjobcontract
+   *  org.civicrm.reqangular
+   *  uk.co.compucorp.civicrm.hrcore
+   */
+  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
 }
