@@ -96,8 +96,8 @@ pipeline {
               }
             }
           }
+          parallel extensionTestings
         }
-        parallel extensionTestings
       //   parallel (
       //     hrjobroles: {
       //       echo 'hrjobroles'
