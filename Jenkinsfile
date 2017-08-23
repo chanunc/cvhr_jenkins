@@ -84,48 +84,18 @@ pipeline {
         echo 'Testing JS Parallel'
 
         script{
-          // node("testing-js-parallel"){
-          //   echo 'testing-js-parallel'
-          // }
           def extensionTestings = [:]
           def extensions = listEnabledCivihrExtensions()
 
           for (int i = 0; i<extensions.size(); i++) {
             def index = i
             extensionTestings[extensions[index]] = {
-              // node("testing-js-parallel"){
-                echo extensions[index]
-                testJS(extensions[index])
-              // }
+              echo extensions[index]
+              testJS(extensions[index])
             }
           }
           parallel extensionTestings
         }
-      //   parallel (
-      //     hrjobroles: {
-      //       echo 'hrjobroles'
-      //       script{
-      //         testJS("com.civicrm.hrjobroles")
-      //       }
-      //     },
-      //     hrjobcontract: {
-      //       echo 'hrjobcontract'
-      //       script{
-      //         testJS("hrjobcontract")
-      //       }
-      //     },
-      //     reqangular: {
-      //       echo 'reqangular'
-      //       script{
-      //         testJS("org.civicrm.reqangular")
-      //       }
-      //     },
-      //     hrcore: {
-      //       echo 'hrcore'
-      //       script{
-      //         testJS("uk.co.compucorp.civicrm.hrcore")
-      //       }
-      //   })
       }
     }
   }
@@ -155,6 +125,6 @@ def testJS(String extensionName){
  */
 def listEnabledCivihrExtensions(){
   echo 'Get list of enabled CiviHR extensions'
-  // return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
-  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
+  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
+  // return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
 }
