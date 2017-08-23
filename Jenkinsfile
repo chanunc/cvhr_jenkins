@@ -84,22 +84,34 @@ pipeline {
         parallel (
           hrjobroles: {
             node('hrjobroles') {
+              echo 'hrjobroles'
+              script{
                 testJS("com.civicrm.hrjobroles")
+              }
             }
           },
           hrjobcontract: {
             node('hrjobcontract') {
+              echo 'hrjobcontract'
+              script{
                 testJS("hrjobcontract")
+              }
             }
           },
           reqangular: {
             node('reqangular') {
+              echo 'reqangular'
+              script{
                 testJS("org.civicrm.reqangular")
+              }
             }
           },
           hrcore: {
             node('hrcore') {
+              echo 'hrcore'
+              script{
                 testJS("uk.co.compucorp.civicrm.hrcore")
+              }
             }
         })
       }
