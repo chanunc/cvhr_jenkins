@@ -81,31 +81,45 @@ pipeline {
      */
     stage('Test JS Parallel') {
       steps {
-        parallel (
-          hrjobroles: {
-            echo 'hrjobroles'
-            script{
-              testJS("com.civicrm.hrjobroles")
-            }
-          },
-          hrjobcontract: {
-            echo 'hrjobcontract'
-            script{
-              testJS("hrjobcontract")
-            }
-          },
-          reqangular: {
-            echo 'reqangular'
-            script{
-              testJS("org.civicrm.reqangular")
-            }
-          },
-          hrcore: {
-            echo 'hrcore'
-            script{
-              testJS("uk.co.compucorp.civicrm.hrcore")
-            }
-        })
+
+      script{
+        def extensionTestings = [:]
+        def extensions = listEnabledCivihrExtensions()
+
+        for (int i = 0; i<extensions.size(); i++) {
+          def index = i;
+          extensionTestings[extensions[index]] = {
+            echo extensions[index];
+            testJS(extensions[index])
+          }
+        }
+      }
+      parallel extensionTestings
+      //   parallel (
+      //     hrjobroles: {
+      //       echo 'hrjobroles'
+      //       script{
+      //         testJS("com.civicrm.hrjobroles")
+      //       }
+      //     },
+      //     hrjobcontract: {
+      //       echo 'hrjobcontract'
+      //       script{
+      //         testJS("hrjobcontract")
+      //       }
+      //     },
+      //     reqangular: {
+      //       echo 'reqangular'
+      //       script{
+      //         testJS("org.civicrm.reqangular")
+      //       }
+      //     },
+      //     hrcore: {
+      //       echo 'hrcore'
+      //       script{
+      //         testJS("uk.co.compucorp.civicrm.hrcore")
+      //       }
+      //   })
       }
     }
   }
