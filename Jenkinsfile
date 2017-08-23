@@ -80,25 +80,28 @@ pipeline {
      * uk.co.compucorp.civicrm.hrcore
      */
     stage('Test JS Parallel') {
-      parallel hrjobroles: {
-          node('hrjobroles') {
-              testJS("com.civicrm.hrjobroles")
-          }
-      },
-      hrjobcontract: {
-          node('hrjobcontract') {
-              testJS("hrjobcontract")
-          }
-      }
-      reqangular: {
-          node('reqangular') {
-              testJS("org.civicrm.reqangular")
-          }
-      }
-      hrcore: {
-          node('hrcore') {
-              testJS("uk.co.compucorp.civicrm.hrcore")
-          }
+      steps {
+        parallel (
+          hrjobroles: {
+            node('hrjobroles') {
+                testJS("com.civicrm.hrjobroles")
+            }
+          },
+          hrjobcontract: {
+            node('hrjobcontract') {
+                testJS("hrjobcontract")
+            }
+          },
+          reqangular: {
+            node('reqangular') {
+                testJS("org.civicrm.reqangular")
+            }
+          },
+          hrcore: {
+            node('hrcore') {
+                testJS("uk.co.compucorp.civicrm.hrcore")
+            }
+        })
       }
     }
   }
