@@ -5,14 +5,19 @@ pipeline {
   
   parameters {
   	string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
+  	string(name: 'CVHR_SITENAME', defaultValue: 'hr17', description: 'CiviHR site name')
   }
 
   stages {
     // TODO: Consider destroy site before or after build
     stage('Pre-tasks execution') {
       steps {
+      	
+      	sh 'printenv'
+
         // Destroy existing site
         sh 'civibuild destroy hr17'
+
         // Test build tools
         sh 'amp test'
       }
@@ -21,8 +26,10 @@ pipeline {
     // TODO: Parameterise; buildName, branchName
     stage('Build site') {
       steps {
+      	echo "Sitename: ${params.CVHR_SITENAME}"
+
         sh """
-          civibuild create hr17 --type hr16 --civi-ver 4.7.18 --hr-ver ${params.CVHR_BRANCH} --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
+          civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver ${params.CVHR_BRANCH} --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
           cd /opt/buildkit/build/hr17/sites/
           drush civicrm-upgrade-db
           drush cvapi extension.upgrade
@@ -36,7 +43,7 @@ pipeline {
       steps {
         echo 'Testing PHP'
 
-        script{
+        script {
           // Get the list of cvivihr extensions to test
           def extensions = listEnabledCivihrExtensions()
 
