@@ -1,4 +1,5 @@
 #!groovy
+
 pipeline {
   agent any
   
@@ -56,6 +57,7 @@ pipeline {
     }
 
     // TODO: Execute test and Generate report without stop on fail
+   
     // stage('Test JS'){
     //   steps{
     //     echo 'Testing JS'
