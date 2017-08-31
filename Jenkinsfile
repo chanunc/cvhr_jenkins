@@ -17,7 +17,7 @@ pipeline {
       	// sh 'printenv'
 
         // Destroy existing site
-        sh "civibuild destroy ${CVHR_SITENAME}"
+        sh "civibuild destroy ${CVHR_SITENAME} || true"
 
         // Test build tools
         sh 'amp test'
