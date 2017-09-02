@@ -59,6 +59,9 @@ pipeline {
           }
         }
 
+        publishers {
+          textFinder(/^FAILURES!$/, '', true, false, true)
+        }
         // publishers {
         //   /* Add textFinder from Job DSL plugin
         //    */
