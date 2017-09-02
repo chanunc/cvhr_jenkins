@@ -3,10 +3,10 @@
 pipeline {
 	agent any	
 
-	//  TODO: Trigger job by Github PR
-	triggers {
-	    upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
-	}
+	// TODO: Trigger job by Github PR
+	// triggers {
+	//     upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
+	// }
 
   parameters {
   	// string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
