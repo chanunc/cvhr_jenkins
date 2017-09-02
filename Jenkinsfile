@@ -1,8 +1,13 @@
 #!groovy
 
 pipeline {
-  agent any
-  
+	agent any	
+
+	//  TODO: Trigger job by Github PR
+	triggers {
+	    upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
+	}
+
   parameters {
   	// string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
   	string(name: 'CVHR_SITENAME', defaultValue: 'hr17', description: 'CiviHR site name')
@@ -118,6 +123,7 @@ pipeline {
     }
   }
 }
+
 
 /* Execute PHPUnit testing
  * params: extensionName
