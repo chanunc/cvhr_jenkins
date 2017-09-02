@@ -1,63 +1,132 @@
 #!groovy
+
 pipeline {
-  agent any
-  
+	agent any	
+
+	//  TODO: Trigger job by Github PR
+	triggers {
+	    upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
+	}
+
+  parameters {
+  	// string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
+  	string(name: 'CVHR_SITENAME', defaultValue: 'hr17', description: 'CiviHR site name')
+  }
+
   stages {
-    stage('Test build tools') {
+    // TODO: Consider destroy site before or after build
+    stage('Pre-tasks execution') {
       steps {
+      	
+      	// DEBUG: print environment vars
+      	// sh 'printenv'
+
+        // Destroy existing site
+        sh "civibuild destroy ${CVHR_SITENAME} || true"
+
+        // Test build tools
         sh 'amp test'
       }
     }
 
+    // TODO: Parameterise; buildName, branchName
     stage('Build site') {
       steps {
-        // TODO: Parameterise; buildName, branchName
-        sh '''
-          civibuild create hr17 --type hr16 --civi-ver 4.7.18 --hr-ver 1.7-wip --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
+      	echo "Branch name: $BRANCH_NAME"
+
+        sh """
+          civibuild create ${CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver $BRANCH_NAME --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
           cd /opt/buildkit/build/hr17/sites/
           drush civicrm-upgrade-db
           drush cvapi extension.upgrade
-        '''
+        """
       }
     }
 
+    // TODO: Shared env; webRootPath
+    // TODO: Test report after all tests
     stage('Test PHP') {
       steps {
-        // TODO: Shared env; webRootPath
         echo 'Testing PHP'
-        script{
+
+        script {
           // Get the list of cvivihr extensions to test
           def extensions = listEnabledCivihrExtensions()
 
-          // TODO: Execute test and Generate report without stop on fail
           for (int i = 0; i<extensions.size(); i++) {
             // Execute PHP test
             testPHPUnit(extensions[i])
           }
         }
+
         publishers {
           textFinder(/^FAILURES!$/, '', true, false, true)
         }
+        // publishers {
+        //   /* Add textFinder from Job DSL plugin
+        //    */
+        //   // textFinder(String regularExpression
+        //   // , String fileSet = ''
+        //   // , boolean alsoCheckConsoleOutput = false
+        //   // , boolean succeedIfFound = false
+        //   // , unstableIfFound = false
+          
+        //   textFinder(/^FAILURES!$/, '', true, true, false)
+        // }
       }
     }
 
-    stage('Test JS'){
-      steps{
-        echo 'Testing JS'
-        script{
-          // Get the list of cvivihr extensions to test
-          def extensions = listEnabledCivihrExtensions()
+    // TODO: Execute test and Generate report without stop on fail
+   
+    // stage('Test JS'){
+    //   steps{
+    //     echo 'Testing JS'
 
-          // TODO: Execute test and Generate report without stop on fail
+    //     script{
+    //       // Get the list of cvivihr extensions to test
+    //       def extensions = listEnabledCivihrExtensions()
+
+    //       for (int i = 0; i<extensions.size(); i++) {
+    //       // Execute JS test
+    //       testJS(extensions[i])
+    //       }
+    //     }
+    //   }
+    // }
+    
+    /* Parallel Test JS
+     */
+    stage('Test JS Parallel') {
+      steps {
+        echo 'Testing JS Parallel'
+
+        script{
+          // get extensions list
+          def extensions = listEnabledCivihrExtensions()
+          def extensionTestings = [:]
+
+          // Parallel Install NPM jobs 
           for (int i = 0; i<extensions.size(); i++) {
-            // Execute JS test
-            testJS(extensions[i])
+            def index = i
+            extensionTestings[extensions[index]] = {
+              echo "Installing NPM: " + extensions[index]
+              installJS(extensions[index])
+            }
+          }
+          parallel extensionTestings
+
+          // Sequenctially test JS
+          for (int j = 0; j<extensions.size(); j++) {
+            def index = j
+            echo "Testing with Gulp: " + extensions[index]
+            testJS(extensions[index])  
           }
         }
       }
     }
   }
 }
+
 
 /* Execute PHPUnit testing
  * params: extensionName
@@ -68,19 +137,37 @@ def testPHPUnit(String extensionName){
     phpunit4 || true
   """
 }
+/* Installk JS Testing
+ * params: extensionName
+ */
+def installJS(String extensionName){
+  sh """
+    cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+    npm install || true
+  """
+}
 /* Execute JS Testing
  * params: extensionName
  */
 def testJS(String extensionName){
   sh """
     cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
-    npm install
     gulp test || true
   """
 }
-/* Get list of enabled extensions in extensions/civihr folder
+/* Get list of enabled CiviHR extensions
  * CVAPI - drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print $NF}' | sort
  */
 def listEnabledCivihrExtensions(){
-  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
+  echo 'Get list of enabled CiviHR extensions'
+  // All cvhr extensions
+  // return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
+  
+  /* Some cvhr extensions:
+   *  com.civicrm.hrjobroles
+   *  hrjobcontract
+   *  org.civicrm.reqangular
+   *  uk.co.compucorp.civicrm.hrcore
+   */
+  return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
 }
