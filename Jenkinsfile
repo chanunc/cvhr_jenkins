@@ -3,10 +3,10 @@
 pipeline {
 	agent any	
 
-	//  TODO: Trigger job by Github PR
-	triggers {
-	    upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
-	}
+	// TODO: Trigger job by Github PR
+	// triggers {
+	//     upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
+	// }
 
   parameters {
   	// string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
@@ -19,10 +19,10 @@ pipeline {
       steps {
       	
       	// DEBUG: print environment vars
-      	// sh 'printenv'
+      	sh 'printenv'
 
         // Destroy existing site
-        sh "civibuild destroy ${CVHR_SITENAME} || true"
+        sh "civibuild destroy ${params.CVHR_SITENAME} || true"
 
         // Test build tools
         sh 'amp test'
@@ -35,7 +35,7 @@ pipeline {
       	echo "Branch name: $BRANCH_NAME"
 
         sh """
-          civibuild create ${CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver $BRANCH_NAME --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
+          civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver $BRANCH_NAME --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
           cd /opt/buildkit/build/hr17/sites/
           drush civicrm-upgrade-db
           drush cvapi extension.upgrade
