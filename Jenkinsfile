@@ -19,7 +19,7 @@ pipeline {
       steps {
       	
       	// DEBUG: print environment vars
-      	// sh 'printenv'
+      	sh 'printenv'
 
         // Destroy existing site
         sh "civibuild destroy ${params.CVHR_SITENAME} || true"
