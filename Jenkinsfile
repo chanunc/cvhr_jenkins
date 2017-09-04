@@ -9,7 +9,7 @@ pipeline {
 	// }
 
   parameters {
-  	// string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
+  	string(name: 'CVHR_BRANCH', defaultValue: 'staging', description: 'CiviHR git repo branch to build')
   	string(name: 'CVHR_SITENAME', defaultValue: 'hr17', description: 'CiviHR site name')
   }
 
@@ -23,6 +23,7 @@ pipeline {
 
       	script {
 
+      		// Show current 
       		sh """
       			cd $WORKSPACE
       			git log -n2 --oneline
@@ -47,10 +48,11 @@ pipeline {
     stage('Build site') {
       steps {
       	// echo "Branch name: $BRANCH_NAME"
-      	echo "Branch name: $CURRENT_BRANCH"
+      	// echo "Branch name: $CURRENT_BRANCH"
+      	echo "Branch name: {params.CVHR_BRANCH}"
 
         sh """
-          civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver $CURRENT_BRANCH --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
+          civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver {params.CVHR_BRANCH} --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
           cd /opt/buildkit/build/hr17/sites/
           drush civicrm-upgrade-db
           drush cvapi extension.upgrade
@@ -190,5 +192,6 @@ def listEnabledCivihrExtensions(){
  */
 def getCurrentBranch() {
   // return sh(returnStdout: true, script: "cd $WORKSPACE; git rev-parse --abbrev-ref HEAD")
-  return sh(returnStdout: true, script: "cd $WORKSPACE; git log --format=%B -n 1 | awk -F'[/:]' '{print \$1}'").trim()
+  def issueNo = sh(returnStdout: true, script: "cd $WORKSPACE; git log --format=%B -n 1 | awk -F'[/:]' '{print \$1}'").trim()
+  return sh(returnStdout: true, script: "git branch --all | grep ${issueNo} | awk -F '[//]' '{print \$3}'").trim()
 }
