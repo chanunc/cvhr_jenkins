@@ -22,9 +22,17 @@ pipeline {
       	sh 'printenv'
 
       	script {
+
+      		sh """
+      			cd $WORKSPACE
+      			git log -n2 --oneline
+      		"""
+
 			def currentBranch = getCurrentBranch()
-			echo 'Current Branch: '+currentBranch
 			env.CURRENT_BRANCH = currentBranch
+
+			echo 'Current Branch: '+currentBranch
+			echo "BRANCH_NAME: $BRANCH_NAME"
       	}
 
         // Destroy existing site
