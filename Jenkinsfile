@@ -23,6 +23,7 @@ pipeline {
 
       	script {
 			def currentBranch = getCurrentBranch()
+			echo 'Current Branch: '+currentBranch
 			env.CURRENT_BRANCH = currentBranch
       	}
 
