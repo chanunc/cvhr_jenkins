@@ -3,10 +3,10 @@
 pipeline {
 	agent any	
 
-	//  TODO: Trigger job by Github PR
-	triggers {
-	    upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
-	}
+	// TODO: Trigger job by Github PR
+	// triggers {
+	//     upstream 'project-name,other-project-name', hudson.model.Result.SUCCESS
+	// }
 
   parameters {
   	// string(name: 'CVHR_BRANCH', defaultValue: '1.7-wip', description: 'CiviHR git repo branch to build')
@@ -19,10 +19,24 @@ pipeline {
       steps {
       	
       	// DEBUG: print environment vars
-      	// sh 'printenv'
+      	sh 'printenv'
+
+      	script {
+
+      		sh """
+      			cd $WORKSPACE
+      			git log -n2 --oneline
+      		"""
+
+			def currentBranch = getCurrentBranch()
+			env.CURRENT_BRANCH = currentBranch
+
+			echo 'Current Branch: '+currentBranch
+			echo "BRANCH_NAME: $BRANCH_NAME"
+      	}
 
         // Destroy existing site
-        sh "civibuild destroy ${CVHR_SITENAME} || true"
+        sh "civibuild destroy ${params.CVHR_SITENAME} || true"
 
         // Test build tools
         sh 'amp test'
@@ -32,10 +46,11 @@ pipeline {
     // TODO: Parameterise; buildName, branchName
     stage('Build site') {
       steps {
-      	echo "Branch name: $BRANCH_NAME"
+      	// echo "Branch name: $BRANCH_NAME"
+      	echo "Branch name: $CURRENT_BRANCH"
 
         sh """
-          civibuild create ${CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver $BRANCH_NAME --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
+          civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver $CURRENT_BRANCH --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
           cd /opt/buildkit/build/hr17/sites/
           drush civicrm-upgrade-db
           drush cvapi extension.upgrade
@@ -170,4 +185,10 @@ def listEnabledCivihrExtensions(){
    *  uk.co.compucorp.civicrm.hrcore
    */
   return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
+}
+/* Get current branch name
+ */
+def getCurrentBranch() {
+  // return sh(returnStdout: true, script: "cd $WORKSPACE; git rev-parse --abbrev-ref HEAD")
+  return sh(returnStdout: true, script: "cd $WORKSPACE; git log --format=%B -n 1 | awk -F'[/:]' '{print \$1}'").trim()
 }
