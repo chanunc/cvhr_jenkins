@@ -181,5 +181,5 @@ def listEnabledCivihrExtensions(){
 /* Get current branch name
  */
 def getCurrentBranch() {
-  return sh(returnStdout: true, script: "git rev-parse --abbrev-ref HEAD > .git/remote-url")
+  return sh(returnStdout: true, script: "cd $WORKSPACE; git rev-parse --abbrev-ref HEAD")
 }
