@@ -5,7 +5,7 @@ pipeline {
 
 	parameters {
 		string(name: 'CVHR_BRANCH', defaultValue: 'staging', description: 'CiviHR branch to build with CiviCRM-Buildkit')
-		string(name: 'CVHR_SITENAME', defaultValue: 'hr17', description: 'CiviHR site name')
+		string(name: 'CVHR_SITENAME', defaultValue: 'hr17-dev', description: 'CiviHR site name')
 	}
 
 	environment {
