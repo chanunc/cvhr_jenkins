@@ -24,7 +24,7 @@ pipeline {
 				// Current Branch
 				script {
 					def currentBranch = getCurrentBranch()
-					env.CURRENT_BRANCH = currentBranch
+					env.CURRENT_BRANCH = 'CurrentBranch: '+currentBranch
 
 					echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
 				}
