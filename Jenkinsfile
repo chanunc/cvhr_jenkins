@@ -10,6 +10,7 @@ pipeline {
 
 	environment {
 		WEBROOT = "/opt/buildkit/build/${params.CVHR_SITENAME}"
+		CVHR_EXT_ROOT = "$WEBROOT/sites/all/modules/civicrm/tools/extensions/civihr/"
 		WEBURL = "http://jenkins.compucorp.co.uk:8900"
 	}
 
@@ -46,7 +47,7 @@ pipeline {
 				// build site with CiviCRM-Buildkit
 				sh """
 				  civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver ${params.CVHR_BRANCH} --url $WEBURL --admin-pass c0mpuc0rp
-				  cd $WEBROOT/${params.CVHR_SITENAME}
+				  cd $WEBROOT
 				  drush civicrm-upgrade-db
 				  drush cvapi extension.upgrade
 				"""
@@ -110,7 +111,7 @@ pipeline {
  */
 def testPHPUnit(String extensionName){
 	sh """
-		cd $WEBROOT/${params.CVHR_SITENAME}/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+		cd $CVHR_EXT_ROOT/${extensionName}
 		phpunit4 || true
 	"""
 }
@@ -119,7 +120,7 @@ def testPHPUnit(String extensionName){
  */
 def installNPM(String extensionName){
 	sh """
-		cd $WEBROOT/${params.CVHR_SITENAME}/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+		cd $CVHR_EXT_ROOT/${extensionName}
 		npm install || true
 	"""
 }
@@ -128,7 +129,7 @@ def installNPM(String extensionName){
  */
 def testJS(String extensionName){
 	sh """
-		cd $WEBROOT/${params.CVHR_SITENAME}/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+		cd $CVHR_EXT_ROOT/${extensionName}
 		gulp test || true
 	"""
 }
