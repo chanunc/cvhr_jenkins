@@ -1,7 +1,11 @@
 #!groovy
 
 pipeline {
-	agent any	
+	agent any
+
+	environment {
+		WEBROOT = "/opt/buildkit/build"
+	}
 
 	parameters {
 		string(name: 'CVHR_BRANCH', defaultValue: 'staging', description: 'CiviHR branch to build with CiviCRM-Buildkit')
@@ -42,7 +46,7 @@ pipeline {
 				// build site with CiviCRM-Buildkit
 				sh """
 				  civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver ${params.CVHR_BRANCH} --url http://jenkins.compucorp.co.uk:8900 --admin-pass c0mpuc0rp
-				  cd /opt/buildkit/build/hr17/sites/
+				  cd $WEBROOT/${params.CVHR_SITENAME}
 				  drush civicrm-upgrade-db
 				  drush cvapi extension.upgrade
 				"""
@@ -106,7 +110,7 @@ pipeline {
  */
 def testPHPUnit(String extensionName){
 	sh """
-		cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+		cd $WEBROOT/${params.CVHR_SITENAME}/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
 		phpunit4 || true
 	"""
 }
@@ -115,7 +119,7 @@ def testPHPUnit(String extensionName){
  */
 def installJS(String extensionName){
 	sh """
-		cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+		cd $WEBROOT/${params.CVHR_SITENAME}/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
 		npm install || true
 	"""
 }
@@ -124,7 +128,7 @@ def installJS(String extensionName){
  */
 def testJS(String extensionName){
 	sh """
-		cd /opt/buildkit/build/hr17/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
+		cd $WEBROOT/${params.CVHR_SITENAME}/sites/all/modules/civicrm/tools/extensions/civihr/${extensionName}
 		gulp test || true
 	"""
 }
@@ -132,7 +136,6 @@ def testJS(String extensionName){
  * CVAPI - drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print $NF}' | sort
  */
 def listCivihrExtensions(){
-	echo 'Get list of enabled CiviHR extensions'
 	// All cvhr extensions
 	// return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort").split("\n")
 
@@ -142,7 +145,7 @@ def listCivihrExtensions(){
 	*  org.civicrm.reqangular
 	*  uk.co.compucorp.civicrm.hrcore
 	*/
- 	return sh(returnStdout: true, script: "cd /opt/buildkit/build/hr17/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
+ 	return sh(returnStdout: true, script: "cd $WEBROOT/${params.CVHR_SITENAME}/sites/; drush cvapi extension.get statusLabel=Enabled return=path | grep '/civihr/' | awk -F '[//]' '{print \$NF}' | sort | grep 'reqangular\\|hrcore\\|hrjobcontract\\|hrjobroles' ").split("\n")
 }
 /* Get current branch name
  */
