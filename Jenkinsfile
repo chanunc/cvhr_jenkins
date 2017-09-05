@@ -26,8 +26,7 @@ pipeline {
 					def currentBranch = getCurrentBranch()
 					env.CURRENT_BRANCH = currentBranch
 
-					echo 'Current Branch: '+currentBranch
-					echo "BRANCH_NAME: $BRANCH_NAME"
+					echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
 				}
 
 				// Destroy existing site
@@ -43,6 +42,7 @@ pipeline {
 			steps {
 				// DEBUG: print civihr branch associated with CiviCRM-Buildkit 
 				echo "Branch name: ${params.CVHR_BRANCH}"
+				echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
 
 				// build site with CiviCRM-Buildkit
 				sh """
