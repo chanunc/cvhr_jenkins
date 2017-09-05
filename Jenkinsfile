@@ -27,8 +27,9 @@ pipeline {
 					env.CURRENT_BRANCH = 'CurrentBranch: '+currentBranch
 
 					echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
-					echo "Pull Request: "+pullRequest['id']
 				}
+
+				echo "Pull Request: "+pullRequest['id']
 
 				// Destroy existing site
 				sh "civibuild destroy ${params.CVHR_SITENAME} || true"
