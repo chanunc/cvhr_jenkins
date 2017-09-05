@@ -23,12 +23,7 @@ pipeline {
 
       	script {
 
-      		// Show current 
-      		sh """
-      			cd $WORKSPACE
-      			git log -n2 --oneline
-      		"""
-
+      		// Current Branch
 			def currentBranch = getCurrentBranch()
 			env.CURRENT_BRANCH = currentBranch
 
@@ -193,5 +188,5 @@ def listEnabledCivihrExtensions(){
 def getCurrentBranch() {
   // return sh(returnStdout: true, script: "cd $WORKSPACE; git rev-parse --abbrev-ref HEAD")
   def issueNo = sh(returnStdout: true, script: "cd $WORKSPACE; git log --format=%B -n 1 | awk -F'[/:]' '{print \$1}'").trim()
-  return sh(returnStdout: true, script: "git branch --all | grep ${issueNo} | awk -F '[//]' '{print \$3}'").trim()
+  return sh(returnStdout: true, script: "cd $WORKSPACE; git branch --all | grep ${issueNo} | awk -F '[//]' '{print \$3}'").trim()
 }
