@@ -21,12 +21,13 @@ pipeline {
 				// DEBUG: print environment vars
 				sh 'printenv'
 
-				// Current Branch
+				// DEBUG: Current Branch
 				script {
 					def currentBranch = getCurrentBranch()
 					env.CURRENT_BRANCH = 'CurrentBranch: '+currentBranch
 
 					echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
+					echo "Pull Request: "+pullRequest['id']
 				}
 
 				// Destroy existing site
