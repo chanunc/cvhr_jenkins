@@ -3,14 +3,14 @@
 pipeline {
 	agent any
 
-	environment {
-		WEBROOT = "/opt/buildkit/build"
-		WEBURL = "http://jenkins.compucorp.co.uk:8900"
-	}
-
 	parameters {
 		string(name: 'CVHR_BRANCH', defaultValue: 'staging', description: 'CiviHR branch to build with CiviCRM-Buildkit')
 		string(name: 'CVHR_SITENAME', defaultValue: 'hr17', description: 'CiviHR site name')
+	}
+
+	environment {
+		WEBROOT = "/opt/buildkit/build/${params.CVHR_SITENAME}"
+		WEBURL = "http://jenkins.compucorp.co.uk:8900"
 	}
 
   	stages {
@@ -25,11 +25,8 @@ pipeline {
 				script {
 					def currentBranch = getCurrentBranch()
 					env.CURRENT_BRANCH = 'CurrentBranch: '+currentBranch
-
 					echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
 				}
-
-				echo "Pull Request: "+pullRequest['id']
 
 				// Destroy existing site
 				sh "civibuild destroy ${params.CVHR_SITENAME} || true"
