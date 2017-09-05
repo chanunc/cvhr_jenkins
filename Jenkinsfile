@@ -10,7 +10,7 @@ pipeline {
 
 	environment {
 		WEBROOT = "/opt/buildkit/build/${params.CVHR_SITENAME}"
-		CVHR_EXT_ROOT = "$WEBROOT/sites/all/modules/civicrm/tools/extensions/civihr/"
+		CVHR_EXT_ROOT = "$WEBROOT/sites/all/modules/civicrm/tools/extensions/civihr"
 		WEBURL = "http://jenkins.compucorp.co.uk:8900"
 	}
 
@@ -18,16 +18,8 @@ pipeline {
     	// TODO: Consider destroy site before or after build
 	    stage('Pre-tasks execution') {
 	      steps {
-	      	
 				// DEBUG: print environment vars
-				sh 'printenv'
-
-				// DEBUG: Current Branch
-				script {
-					def currentBranch = getCurrentBranch()
-					env.CURRENT_BRANCH = 'CurrentBranch: '+currentBranch
-					echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
-				}
+				sh 'printenv | sort'
 
 				// Destroy existing site
 				sh "civibuild destroy ${params.CVHR_SITENAME} || true"
@@ -40,16 +32,25 @@ pipeline {
 	    // TODO: Parameterise; buildName, branchName
 	    stage('Build site') {
 			steps {
-				// DEBUG: print civihr branch associated with CiviCRM-Buildkit 
-				echo "Branch name: ${params.CVHR_BRANCH}"
-				echo "Current Branch: "+env.CURRENT_BRANCH+", BRANCH_NAME: $BRANCH_NAME"
-
 				// build site with CiviCRM-Buildkit
 				sh """
-				  civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver ${params.CVHR_BRANCH} --url $WEBURL --admin-pass c0mpuc0rp
+				  civibuild create ${params.CVHR_SITENAME} --type hr16 --civi-ver 4.7.18 --hr-ver ${params.CVHR_BRANCH} --url $WEBURL --admin-pass 1234
+				"""
+
+				// Copy and Replace PR commit code base to CVHR_EXT_ROOT
+				sh """
+				  rsync -av --delete $WORKSPACE/ $CVHR_EXT_ROOT/
+
 				  cd $WEBROOT
 				  drush civicrm-upgrade-db
 				  drush cvapi extension.upgrade
+				"""
+
+				// DEBUG: Verify latest PR commit on CVHR_EXT_ROOT
+				sh """
+				  echo 'Verify latest PR commit'
+				  cd $CVHR_EXT_ROOT
+				  git log --oneline -n2 
 				"""
 			}
 	    }
@@ -59,32 +60,27 @@ pipeline {
 	    // TODO: Test report after all tests
 	    stage('Test PHP') {
 			steps {
-				echo 'Testing PHP'
-
 				script {
 					// Get civihr extensions list
 					def extensions = listCivihrExtensions()
-
+					
+					// Execute PHP test
 					for (int i = 0; i<extensions.size(); i++) {
-						// Execute PHP test
 						testPHPUnit(extensions[i])
 					}
 				}
 			}
 	    }
-
-	    /* Testing JS */
-	    // TODO: Execute test and Generate report without stop on fail
-	    stage('Test JS Parallel') {
+		
+		/* Testing JS */
+	    stage('Testing JS: Install NPM in parallel') {
 			steps {
-				echo 'Testing JS Parallel'
-
-				script{
+				script {
 					// Get civihr extensions list
 					def extensions = listCivihrExtensions()
 					def extensionTestings = [:]
 
-					// Install NPM jobs in parallel
+					// Install NPM jobs
 					for (int i = 0; i<extensions.size(); i++) {
 						def index = i
 						extensionTestings[extensions[index]] = {
@@ -92,6 +88,17 @@ pipeline {
 						  installNPM(extensions[index])
 						}
 					}
+					// Running install NPM jobs in parallel
+					parallel extensionTestings
+				}
+			}
+	    }
+	    // TODO: Execute test and Generate report without stop on fail
+	    stage('Testing JS: Test JS in sequent') {
+			steps {
+				script {
+					def extensions = listCivihrExtensions()
+					def extensionTestings = [:]
 
 					// Testing JS in sequent
 					for (int j = 0; j<extensions.size(); j++) {
@@ -104,7 +111,6 @@ pipeline {
 	    }
   	}
 }
-
 
 /* Execute PHPUnit testing
  * params: extensionName
@@ -151,10 +157,4 @@ def listCivihrExtensions(){
  		'com.civicrm.hrjobroles',
  	]
 }
-/* Get current branch name
- */
-def getCurrentBranch() {
- 	// return sh(returnStdout: true, script: "cd $WORKSPACE; git rev-parse --abbrev-ref HEAD")
-	def issueNo = sh(returnStdout: true, script: "cd $WORKSPACE; git log --format=%B -n 1 | awk -F'[/:]' '{print \$1}'").trim()
-	return sh(returnStdout: true, script: "cd $WORKSPACE; git branch --all | grep ${issueNo} | awk -F '[//]' '{print \$3}'").trim()
-}
+
